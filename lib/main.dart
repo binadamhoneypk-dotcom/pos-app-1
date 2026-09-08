@@ -67,15 +67,13 @@ class _PosAppState extends State<PosApp> {
       ],
       // PHASE 2: teal + gold theme matching the approved HTML prototype.
       theme: AppTheme.light(),
-      darkTheme: ThemeData(
-        colorSchemeSeed: Colors.teal,
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
-      // PHASE 2 screens use fixed AppColors (matching the approved HTML
-      // prototype) rather than reading brightness, so force light mode
-      // until Phase 5 does proper dark-mode polish across every screen.
-      themeMode: ThemeMode.light,
+      // FEATURE 2 (Google AI Studio prompt): a real dark theme, wired to
+      // the Settings toggle via `appState.themeMode` — see
+      // AppTheme.dark()'s doc comment for the honest scope note (stock
+      // widgets go dark correctly; custom-painted screens keep their
+      // fixed AppColors until Phase 5's per-screen pass).
+      darkTheme: AppTheme.dark(),
+      themeMode: appState.themeMode,
       // PHASE 2: named routes so deep screens (Dashboard, More) can
       // navigate to Login/BusinessSwitch/MainShell without importing
       // each other directly and creating circular imports.

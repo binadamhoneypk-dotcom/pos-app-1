@@ -21,6 +21,7 @@ class ItemService {
     required double purchasePrice,
     required double salePrice,
     required double quantity,
+    String unit = AppConstants.defaultUnit,
   }) async {
     final now = nowMillis();
     final item = Item(
@@ -32,6 +33,7 @@ class ItemService {
       purchasePrice: purchasePrice,
       salePrice: salePrice,
       quantity: quantity,
+      unit: unit,
       createdAt: now,
       lastUpdated: now,
     );

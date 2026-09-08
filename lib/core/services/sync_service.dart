@@ -21,8 +21,9 @@ class SyncService {
   final _api = ApiClient.instance;
 
   /// Tables synced. Phase 1 registered users/businesses/business_users;
-  /// Phase 2 adds the four lines below — nothing else in this class
-  /// needed to change, exactly as the Phase 1 design intended.
+  /// Phase 2 added items/customers/sales/sale_items; Phase 3 adds the
+  /// four lines below — nothing else in this class needed to change,
+  /// exactly as the Phase 1 design intended.
   static const List<String> syncableTables = [
     AppConstants.tableUsers,
     AppConstants.tableBusinesses,
@@ -31,6 +32,10 @@ class SyncService {
     AppConstants.tableCustomers,
     AppConstants.tableSales,
     AppConstants.tableSaleItems,
+    AppConstants.tableLedgerEntries,
+    AppConstants.tableEmployees,
+    AppConstants.tableEmployeeTransactions,
+    AppConstants.tableAttendance,
   ];
 
   bool _isSyncing = false;

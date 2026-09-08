@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/calculator_fab.dart';
 import 'add_bill_item_screen.dart';
 import 'customer_picker_sheet.dart';
+import '../../core/utils/app_format.dart';
 
 /// "کسٹمر منتخب کرتے ہی اس کا پرانا بقایا (old due) فوری طور پر نام کے
 /// نیچے ایک رنگین banner میں نظر آئے (سرخ = آپ نے دینا ہے / سبز = آپ کو
@@ -135,7 +136,7 @@ class _NewBillScreenState extends State<NewBillScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('کل رقم', style: AppFonts.body(fontSize: 13, color: Colors.white70)),
-                    Text('Rs ${_total.toStringAsFixed(0)}',
+                    Text(AppFormat.currency(_total),
                         style: AppFonts.body(fontSize: 20, color: Colors.white, weight: FontWeight.w700)),
                   ],
                 ),
@@ -144,9 +145,9 @@ class _NewBillScreenState extends State<NewBillScreen> {
               TextField(
                 controller: _paidCtrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'وصول شدہ رقم (خالی چھوڑیں تو مکمل رقم وصول ظاہر ہوگی)',
-                  prefixText: 'Rs ',
+                  prefixText: AppFormat.pricePrefix,
                 ),
                 onChanged: (_) => setState(() {}),
               ),
@@ -170,8 +171,8 @@ class _NewBillScreenState extends State<NewBillScreen> {
     final owesUs = customer.currentBalance > 0;
     final color = owesUs ? AppColors.success : AppColors.danger;
     final label = owesUs
-        ? 'پرانا بقایا — آپ کو ملنا ہے: Rs ${customer.currentBalance.toStringAsFixed(0)}'
-        : 'پرانا بقایا — آپ نے دینا ہے: Rs ${customer.currentBalance.abs().toStringAsFixed(0)}';
+        ? 'پرانا بقایا — آپ کو ملنا ہے: ${AppFormat.currency(customer.currentBalance)}'
+        : 'پرانا بقایا — آپ نے دینا ہے: ${AppFormat.currency(customer.currentBalance.abs())}';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -192,10 +193,10 @@ class _NewBillScreenState extends State<NewBillScreen> {
       child: Row(
         children: [
           Expanded(child: Text(line.name, style: AppFonts.body(fontSize: 13.5, weight: FontWeight.w600))),
-          Text('× ${line.quantity.toStringAsFixed(line.quantity == line.quantity.roundToDouble() ? 0 : 2)}',
+          Text('× ${line.quantity.toStringAsFixed(line.quantity == line.quantity.roundToDouble() ? 0 : 2)} ${line.unit}',
               style: AppFonts.body(fontSize: 12, color: AppColors.inkSoft)),
           const SizedBox(width: 10),
-          Text('Rs ${line.lineTotal.toStringAsFixed(0)}',
+          Text(AppFormat.currency(line.lineTotal),
               style: AppFonts.body(fontSize: 13.5, color: AppColors.teal800, weight: FontWeight.w700)),
           IconButton(
             icon: const Icon(Icons.close, size: 16, color: AppColors.inkSoft),

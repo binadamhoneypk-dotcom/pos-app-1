@@ -5,6 +5,7 @@ import '../../core/services/premium_service.dart';
 import '../../core/services/sync_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/premium_gate.dart';
+import '../employees/employee_list_screen.dart';
 import '../premium/upgrade_screen.dart';
 import '../zakat/zakat_calculator_screen.dart';
 import 'app_settings_screen.dart';
@@ -40,6 +41,18 @@ class _MoreScreenState extends State<MoreScreen> {
         featureLabel: 'مکمل زکوٰۃ کیلکولیٹر');
     if (!ok || !context.mounted) return;
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ZakatCalculatorScreen()));
+  }
+
+  Future<void> _openEmployeeLedger(BuildContext context) async {
+    final role = context.read<AppState>().currentBusinessRole;
+    if (role != null && !role.canManageStaff) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('ملازمین کا کھاتہ دیکھنے کی اجازت صرف مالک/منیجر کو ہے')));
+      return;
+    }
+    final ok = await PremiumGate.ensure(context, PremiumFeature.staffAccounts, featureLabel: 'ملازمین کا کھاتہ');
+    if (!ok || !context.mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EmployeeListScreen()));
   }
 
   @override
@@ -91,6 +104,13 @@ class _MoreScreenState extends State<MoreScreen> {
             'نصاب، شروع کی تاریخ، حساب',
             trailing: premium.isUnlocked(PremiumFeature.zakatCalculator) ? null : const PremiumLockBadge(),
             onTap: appState.currentBusiness == null ? null : () => _openZakatCalculator(context),
+          ),
+          _tile(
+            Icons.groups_outlined,
+            'ملازمین کا کھاتہ',
+            'تنخواہ، ایڈوانس، حاضری',
+            trailing: premium.isUnlocked(PremiumFeature.staffAccounts) ? null : const PremiumLockBadge(),
+            onTap: appState.currentBusiness == null ? null : () => _openEmployeeLedger(context),
           ),
           const Divider(height: 24),
           _tile(

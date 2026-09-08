@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/models/customer.dart';
 import '../../core/services/app_state.dart';
 import '../../core/services/customer_service.dart';
+import '../../core/services/premium_service.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/premium_gate.dart';
+import 'contact_form_sheet.dart';
+import 'contact_statement_screen.dart';
+import '../../core/utils/app_format.dart';
 
-/// Tab 4 of [MainShell]. The full Khatabook/Vyapar-style two-tab
-/// (Customers/Suppliers) ledger with reminders is Phase 3 per the
-/// roadmap. This Phase 2 version already shows real data from the same
-/// `customers` table Billing writes to — so nothing here changes when
-/// Phase 3 adds the Suppliers tab and reminder actions on top of it.
+/// Tab 4 of [MainShell] — the full Khatabook/Vyapar-style ledger:
+/// Customers/Suppliers tabs, a summary bar, search, and a per-contact
+/// "یاد دہانی" via [ContactStatementScreen]. Suppliers are
+/// [PremiumFeature.supplierLedger] — the tab itself is always visible
+/// (so a free-plan shopkeeper can see it exists) but switching to it
+/// prompts the upgrade dialog until unlocked, per [PremiumGate].
 class LedgerScreen extends StatefulWidget {
   const LedgerScreen({super.key});
 
@@ -17,71 +24,190 @@ class LedgerScreen extends StatefulWidget {
   State<LedgerScreen> createState() => _LedgerScreenState();
 }
 
-class _LedgerScreenState extends State<LedgerScreen> {
+class _LedgerScreenState extends State<LedgerScreen> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  final _searchCtrl = TextEditingController();
+
   List<Customer> _customers = [];
+  List<Customer> _suppliers = [];
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_onTabChanged);
     _load();
   }
 
-  Future<void> _load() async {
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) return;
+    if (_tabController.index == 1 && !PremiumService.instance.isUnlocked(PremiumFeature.supplierLedger)) {
+      // Bounce back to Customers immediately and show the upsell — the
+      // Suppliers tab content never actually renders while locked.
+      _tabController.index = 0;
+      PremiumGate.ensure(context, PremiumFeature.supplierLedger, featureLabel: 'سپلائر کھاتہ');
+    }
+  }
+
+  Future<void> _load([String query = '']) async {
     final business = context.read<AppState>().currentBusiness;
     if (business == null) return;
-    final list = await CustomerService.instance.getAll(business.uuid);
+    setState(() => _loading = true);
+    final customers = await CustomerService.instance.search(business.uuid, query, type: AppConstants.contactTypeCustomer);
+    final suppliers = await CustomerService.instance.search(business.uuid, query, type: AppConstants.contactTypeSupplier);
     if (!mounted) return;
     setState(() {
-      _customers = list;
+      _customers = customers;
+      _suppliers = suppliers;
       _loading = false;
     });
   }
 
+  Future<void> _addContact() async {
+    final isSupplierTab = _tabController.index == 1;
+    final type = isSupplierTab ? AppConstants.contactTypeSupplier : AppConstants.contactTypeCustomer;
+
+    if (isSupplierTab) {
+      final ok = await PremiumGate.ensure(context, PremiumFeature.supplierLedger, featureLabel: 'سپلائر کھاتہ');
+      if (!ok || !mounted) return;
+    }
+
+    final business = context.read<AppState>().currentBusiness;
+    if (business == null) return;
+    final added = await showModalBottomSheet<Customer?>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => ContactFormSheet(businessUuid: business.uuid, type: type),
+    );
+    if (added != null) await _load(_searchCtrl.text);
+  }
+
+  Future<void> _openStatement(Customer contact) async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ContactStatementScreen(contact: contact)));
+    await _load(_searchCtrl.text);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final receivable = _customers.where((c) => c.currentBalance > 0).fold<double>(0, (s, c) => s + c.currentBalance);
-    final payable = _customers.where((c) => c.currentBalance < 0).fold<double>(0, (s, c) => s + c.currentBalance.abs());
+    final premium = context.watch<PremiumService>();
+    final supplierLocked = !premium.isUnlocked(PremiumFeature.supplierLedger);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('گاہک کا کھاتہ')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
+      appBar: AppBar(
+        title: const Text('کھاتہ'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            const Tab(text: 'گاہک'),
+            Tab(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(child: _summaryTile('آپ کو ملنا ہے', receivable, AppColors.success)),
-                      const SizedBox(width: 12),
-                      Expanded(child: _summaryTile('آپ نے دینا ہے', payable, AppColors.danger)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: AppColors.teal100, borderRadius: BorderRadius.circular(10)),
-                    child: Text(
-                      'مکمل کھاتہ (سپلائرز، یاد دہانی، اور ملازمین کا کھاتہ) فیز 3 میں شامل ہوگا۔ نیچے دی گئی فہرست بلنگ کے ذریعے محفوظ ہونے والا اصل ڈیٹا ہے۔',
-                      style: AppFonts.body(fontSize: 11.5, color: AppColors.teal900),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (_customers.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 40),
-                      child: Center(
-                        child: Text('ابھی تک کوئی گاہک شامل نہیں — بل بناتے وقت گاہک شامل کریں',
-                            style: AppFonts.body(fontSize: 13, color: AppColors.inkSoft)),
-                      ),
-                    )
-                  else
-                    for (final c in _customers) _customerTile(c),
+                  const Text('سپلائرز'),
+                  if (supplierLocked) const Padding(padding: EdgeInsets.only(right: 6), child: PremiumLockBadge()),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addContact,
+        child: const Icon(Icons.person_add_alt_1),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: const InputDecoration(hintText: 'نام یا فون نمبر تلاش کریں', prefixIcon: Icon(Icons.search)),
+              onChanged: _load,
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _contactListTab(_customers, isSupplierTab: false),
+                supplierLocked ? _lockedSupplierTab() : _contactListTab(_suppliers, isSupplierTab: true),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _lockedSupplierTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.lock_outline, size: 36, color: AppColors.gold500),
+            const SizedBox(height: 12),
+            Text('سپلائر کھاتہ پریمیم فیچر ہے', style: AppFonts.body(fontSize: 14, weight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            Text('سپلائرز کا کھاتہ دیکھنے کے لیے پریمیم پلان درکار ہے۔',
+                style: AppFonts.body(fontSize: 12, color: AppColors.inkSoft), textAlign: TextAlign.center),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              onPressed: () => PremiumGate.ensure(context, PremiumFeature.supplierLedger, featureLabel: 'سپلائر کھاتہ'),
+              child: const Text('اپ گریڈ کریں'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _contactListTab(List<Customer> contacts, {required bool isSupplierTab}) {
+    final receivable = contacts.where((c) => c.currentBalance > 0).fold<double>(0, (s, c) => s + c.currentBalance);
+    final payable = contacts.where((c) => c.currentBalance < 0).fold<double>(0, (s, c) => s + c.currentBalance.abs());
+
+    return RefreshIndicator(
+      onRefresh: () => _load(_searchCtrl.text),
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Row(
+            children: [
+              Expanded(child: _summaryTile('آپ کو ملنا ہے', receivable, AppColors.success)),
+              const SizedBox(width: 12),
+              Expanded(child: _summaryTile('آپ نے دینا ہے', payable, AppColors.danger)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_loading)
+            const Padding(padding: EdgeInsets.only(top: 40), child: Center(child: CircularProgressIndicator()))
+          else if (contacts.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: Center(
+                child: Text(
+                  isSupplierTab
+                      ? 'ابھی تک کوئی سپلائر شامل نہیں — نیچے دیے بٹن سے شامل کریں'
+                      : 'ابھی تک کوئی گاہک شامل نہیں — بل بناتے وقت یا نیچے دیے بٹن سے شامل کریں',
+                  style: AppFonts.body(fontSize: 13, color: AppColors.inkSoft),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          else
+            for (final c in contacts) _contactTile(c),
+        ],
+      ),
     );
   }
 
@@ -98,42 +224,48 @@ class _LedgerScreenState extends State<LedgerScreen> {
         children: [
           Text(label, style: AppFonts.body(fontSize: 11.5, color: AppColors.inkSoft)),
           const SizedBox(height: 4),
-          Text('Rs ${value.toStringAsFixed(0)}', style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16)),
+          Text(AppFormat.currency(value), style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16)),
         ],
       ),
     );
   }
 
-  Widget _customerTile(Customer c) {
+  Widget _contactTile(Customer c) {
     final color = c.currentBalance > 0
         ? AppColors.success
         : c.currentBalance < 0
             ? AppColors.danger
             : AppColors.inkSoft;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        border: Border.all(color: AppColors.line),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(c.name, style: AppFonts.body(fontSize: 13.5, weight: FontWeight.w600)),
-                if (c.phone != null) Text(c.phone!, style: AppFonts.body(fontSize: 11.5, color: AppColors.inkSoft)),
-              ],
+    return InkWell(
+      onTap: () => _openStatement(c),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          border: Border.all(color: AppColors.line),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(c.name, style: AppFonts.body(fontSize: 13.5, weight: FontWeight.w600)),
+                  if (c.phone != null) Text(c.phone!, style: AppFonts.body(fontSize: 11.5, color: AppColors.inkSoft)),
+                ],
+              ),
             ),
-          ),
-          Text(
-            c.currentBalance == 0 ? 'برابر' : 'Rs ${c.currentBalance.abs().toStringAsFixed(0)}',
-            style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13),
-          ),
-        ],
+            Text(
+              c.currentBalance == 0 ? 'برابر' : AppFormat.currency(c.currentBalance.abs()),
+              style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_left, size: 18, color: AppColors.inkSoft),
+          ],
+        ),
       ),
     );
   }

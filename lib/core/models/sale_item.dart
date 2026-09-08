@@ -9,6 +9,7 @@ class SaleItem {
   final String itemNameSnapshot;
   final double unitPrice;
   final double quantity;
+  final String unit;
   final double lineTotal;
   final int createdAt;
   final int lastUpdated;
@@ -23,6 +24,7 @@ class SaleItem {
     required this.itemNameSnapshot,
     required this.unitPrice,
     required this.quantity,
+    this.unit = 'عدد',
     required this.lineTotal,
     required this.createdAt,
     required this.lastUpdated,
@@ -38,6 +40,7 @@ class SaleItem {
         'item_name_snapshot': itemNameSnapshot,
         'unit_price': unitPrice,
         'quantity': quantity,
+        'unit': unit,
         'line_total': lineTotal,
         'created_at': createdAt,
         'last_updated': lastUpdated,
@@ -53,6 +56,7 @@ class SaleItem {
         itemNameSnapshot: map['item_name_snapshot'] as String,
         unitPrice: (map['unit_price'] as num?)?.toDouble() ?? 0,
         quantity: (map['quantity'] as num?)?.toDouble() ?? 0,
+        unit: (map['unit'] as String?)?.trim().isNotEmpty == true ? map['unit'] as String : 'عدد',
         lineTotal: (map['line_total'] as num?)?.toDouble() ?? 0,
         createdAt: map['created_at'] as int,
         lastUpdated: map['last_updated'] as int,

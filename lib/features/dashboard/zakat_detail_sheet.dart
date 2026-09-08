@@ -4,6 +4,7 @@ import '../../core/models/business.dart';
 import '../../core/services/zakat_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../zakat/zakat_calculator_screen.dart';
+import '../../core/utils/app_format.dart';
 
 /// Full Zakat detail, per the locked design:
 /// "تفصیل میں شامل ہو: صاحبِ نصاب بننے کی تاریخ، قمری سال مکمل ہونے کی
@@ -50,7 +51,7 @@ class ZakatDetailSheet extends StatelessWidget {
             const SizedBox(height: 6),
             _row('قمری سال مکمل ہونے کی متوقع تاریخ', dateFmt.format(completionDate!)),
             const SizedBox(height: 6),
-            _row('نصاب کی حد (مقامی کرنسی)', 'Rs ${business.zakatNisabThreshold.toStringAsFixed(0)}'),
+            _row('نصاب کی حد (مقامی کرنسی)', AppFormat.currency(business.zakatNisabThreshold)),
           ] else
             Text(
               'ابھی تک آپ نے زکوٰۃ کیلکولیٹر میں اپنی نصاب کی معلومات درج نہیں کیں۔ اپنا مجموعی مال درج کر کے معلوم کریں کہ آپ صاحبِ نصاب ہیں یا نہیں۔',

@@ -9,6 +9,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/barcode_scanner_screen.dart';
 import '../../core/widgets/calculator_fab.dart';
 import '../../core/widgets/premium_gate.dart';
+import '../../core/utils/app_format.dart';
 
 /// "Inventory Form: نام، کیٹیگری (dropdown)، بار کوڈ (فیلڈ + سکین بٹن)،
 /// خریداری قیمت، فروخت قیمت، مقدار۔" — one screen for both add and
@@ -29,8 +30,10 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
   late final TextEditingController _salePriceCtrl;
   late final TextEditingController _quantityCtrl;
   late final TextEditingController _customCategoryCtrl;
+  late final TextEditingController _customUnitCtrl;
 
   String? _selectedCategory;
+  late String? _selectedUnit;
   bool _saving = false;
 
   bool get _isEditing => widget.existing != null;
@@ -45,12 +48,21 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
     _salePriceCtrl = TextEditingController(text: item != null ? item.salePrice.toStringAsFixed(0) : '');
     _quantityCtrl = TextEditingController(text: item != null ? item.quantity.toStringAsFixed(0) : '');
     _customCategoryCtrl = TextEditingController();
+    _customUnitCtrl = TextEditingController();
 
     if (item?.category != null && AppConstants.defaultItemCategories.contains(item!.category)) {
       _selectedCategory = item.category;
     } else if (item?.category != null) {
       _selectedCategory = 'دیگر';
       _customCategoryCtrl.text = item!.category!;
+    }
+
+    final unit = item?.unit ?? AppConstants.defaultUnit;
+    if (AppConstants.unitOptions.contains(unit)) {
+      _selectedUnit = unit;
+    } else {
+      _selectedUnit = 'دیگر';
+      _customUnitCtrl.text = unit;
     }
   }
 
@@ -62,6 +74,7 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
     _salePriceCtrl.dispose();
     _quantityCtrl.dispose();
     _customCategoryCtrl.dispose();
+    _customUnitCtrl.dispose();
     super.dispose();
   }
 
@@ -94,6 +107,9 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
     setState(() => _saving = true);
 
     final category = _selectedCategory == 'دیگر' ? _customCategoryCtrl.text.trim() : _selectedCategory;
+    final unit = _selectedUnit == 'دیگر'
+        ? (_customUnitCtrl.text.trim().isEmpty ? AppConstants.defaultUnit : _customUnitCtrl.text.trim())
+        : (_selectedUnit ?? AppConstants.defaultUnit);
     final purchasePrice = double.tryParse(_purchasePriceCtrl.text) ?? 0;
     final salePrice = double.tryParse(_salePriceCtrl.text) ?? 0;
     final quantity = double.tryParse(_quantityCtrl.text) ?? 0;
@@ -106,6 +122,7 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
         purchasePrice: purchasePrice,
         salePrice: salePrice,
         quantity: quantity,
+        unit: unit,
       ));
     } else {
       await ItemService.instance.createItem(
@@ -116,6 +133,7 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
         purchasePrice: purchasePrice,
         salePrice: salePrice,
         quantity: quantity,
+        unit: unit,
       );
     }
 
@@ -230,7 +248,7 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
                 TextFormField(
                   controller: _purchasePriceCtrl,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(prefixText: 'Rs '),
+                  decoration: InputDecoration(prefixText: AppFormat.pricePrefix),
                   validator: (v) => double.tryParse(v ?? '') == null ? 'درست قیمت درج کریں' : null,
                 ),
                 const SizedBox(height: 16),
@@ -239,17 +257,43 @@ class _ItemFormScreenState extends State<ItemFormScreen> {
                 TextFormField(
                   controller: _salePriceCtrl,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(prefixText: 'Rs '),
+                  decoration: InputDecoration(prefixText: AppFormat.pricePrefix),
                   validator: (v) => double.tryParse(v ?? '') == null ? 'درست قیمت درج کریں' : null,
                 ),
                 const SizedBox(height: 16),
 
                 _label('مقدار'),
-                TextFormField(
-                  controller: _quantityCtrl,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  validator: (v) => double.tryParse(v ?? '') == null ? 'درست مقدار درج کریں' : null,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: TextFormField(
+                        controller: _quantityCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        validator: (v) => double.tryParse(v ?? '') == null ? 'درست مقدار درج کریں' : null,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 2,
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedUnit,
+                        decoration: const InputDecoration(hintText: 'یونٹ'),
+                        isExpanded: true,
+                        items: AppConstants.unitOptions.map((u) => DropdownMenuItem(value: u, child: Text(u))).toList(),
+                        onChanged: (v) => setState(() => _selectedUnit = v),
+                      ),
+                    ),
+                  ],
                 ),
+                if (_selectedUnit == 'دیگر') ...[
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _customUnitCtrl,
+                    decoration: const InputDecoration(hintText: 'یونٹ کا نام لکھیں (مثلاً: بوری)'),
+                  ),
+                ],
                 const SizedBox(height: 24),
 
                 ElevatedButton(

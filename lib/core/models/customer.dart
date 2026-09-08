@@ -1,18 +1,28 @@
-/// A customer of one [Business]. This table is the foundation Billing's
-/// "old due" banner reads/writes in Phase 2; the full Khatabook-style
-/// ledger screens (search, reminders, statement) are built on top of
-/// this exact same table in Phase 3 — nothing about this model changes
-/// then, only new screens are added.
+import '../constants/app_constants.dart';
+
+/// A customer OR supplier of one [Business] — Phase 3 reuses this single
+/// table/model for both via [type], instead of a parallel `suppliers`
+/// table. Rationale (see the Phase 3 continuation prompt's request to
+/// compare both approaches): a customer and a supplier are the exact same
+/// shape of record — a name, a phone, a running balance, a history of
+/// credit/payment events — and keeping one table means the sync engine,
+/// balance math, search, and statement logic are written and tested once.
+/// The trade-off is that every query must remember to filter by [type];
+/// [CustomerService] does that centrally so call sites never have to.
 ///
-/// SIGN CONVENTION for [currentBalance]:
-///   > 0  → the customer owes the shop money ("آپ کو ملنا ہے" — green)
-///   < 0  → the shop owes the customer money ("آپ نے دینا ہے" — red)
+/// SIGN CONVENTION for [currentBalance] (same for customers AND suppliers):
+///   > 0  → the OTHER party owes the shop money ("آپ کو ملنا ہے" — green)
+///   < 0  → the shop owes the OTHER party money ("آپ نے دینا ہے" — red)
 ///   = 0  → settled
+/// For a supplier this typically stays negative (the shop owes them for
+/// stock bought on credit) — the sign convention doesn't flip, only which
+/// direction is "normal" for that contact type differs.
 class Customer {
   final String uuid;
   final String businessUuid;
   final String name;
   final String? phone;
+  final String type; // AppConstants.contactTypeCustomer / contactTypeSupplier
   final double openingBalance;
   final double currentBalance;
   final int createdAt;
@@ -25,6 +35,7 @@ class Customer {
     required this.businessUuid,
     required this.name,
     this.phone,
+    this.type = AppConstants.contactTypeCustomer,
     this.openingBalance = 0,
     this.currentBalance = 0,
     required this.createdAt,
@@ -32,6 +43,9 @@ class Customer {
     this.isDeleted = false,
     this.isSynced = false,
   });
+
+  bool get isSupplier => type == AppConstants.contactTypeSupplier;
+  bool get isCustomer => !isSupplier;
 
   bool get customerOwesUs => currentBalance > 0;
   bool get weOweCustomer => currentBalance < 0;
@@ -41,6 +55,7 @@ class Customer {
         'business_uuid': businessUuid,
         'name': name,
         'phone': phone,
+        'type': type,
         'opening_balance': openingBalance,
         'current_balance': currentBalance,
         'created_at': createdAt,
@@ -54,6 +69,10 @@ class Customer {
         businessUuid: map['business_uuid'] as String,
         name: map['name'] as String,
         phone: map['phone'] as String?,
+        // Older Phase 2 rows synced before this column existed may still
+        // come back null from a stale server pull — treat those as
+        // ordinary customers rather than crashing.
+        type: (map['type'] as String?) ?? AppConstants.contactTypeCustomer,
         openingBalance: (map['opening_balance'] as num?)?.toDouble() ?? 0,
         currentBalance: (map['current_balance'] as num?)?.toDouble() ?? 0,
         createdAt: map['created_at'] as int,
@@ -75,6 +94,7 @@ class Customer {
         businessUuid: businessUuid,
         name: name ?? this.name,
         phone: phone ?? this.phone,
+        type: type,
         openingBalance: openingBalance,
         currentBalance: currentBalance ?? this.currentBalance,
         createdAt: createdAt,

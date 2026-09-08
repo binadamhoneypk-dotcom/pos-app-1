@@ -39,7 +39,7 @@ dependencies:
   # Bilingual (Urdu/English) support + RTL/LTR
   flutter_localizations:
     sdk: flutter
-  intl: ^0.20.2
+  intl: ^0.19.0
 
   cupertino_icons: ^1.0.8
 
@@ -53,6 +53,30 @@ dependencies:
   # Noto Nastaliq Urdu / Noto Sans Arabic, matching the approved HTML
   # prototype's colour + type system exactly.
   google_fonts: ^6.2.1
+
+  # ---------------------------------------------------------------------
+  # PHASE 3 ADDITIONS
+  # ---------------------------------------------------------------------
+
+  # Reminder feature: opens the OS share sheet with a pre-written
+  # SMS/WhatsApp-ready message (lib/features/ledger/reminder_helper.dart).
+  share_plus: ^10.1.2
+
+  # Reminder feature: optional direct "WhatsApp پر بھیجیں" quick action
+  # via a wa.me deep link when the contact has a phone number saved.
+  url_launcher: ^6.3.1
+
+  # ---------------------------------------------------------------------
+  # GOOGLE AI STUDIO PROMPT — FEATURE 3
+  # ---------------------------------------------------------------------
+
+  # Pick a customer's name+phone straight from the device's contact book
+  # (customer_picker_sheet.dart's "نیا گاہک شامل کریں" dialog). Needs
+  # READ_CONTACTS on Android — see the note in that screen's file header
+  # and the "Action Required" step at the end of this reply: a real,
+  # committed android/ folder is required before this permission can
+  # persist across CI builds.
+  flutter_contacts: ^1.1.9+2
 
 dev_dependencies:
   flutter_test:

@@ -10,6 +10,7 @@ import '../../core/services/item_service.dart';
 import '../../core/services/metal_rate_service.dart';
 import '../../core/services/zakat_service.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/app_format.dart';
 
 /// "نصاب تھریشولڈ، شروع کی تاریخ، قمری سال حساب، سونا/چاندی ریٹ آٹو
 /// فیچ + دستی انٹری کا آپشن" — exactly what's built here. Reads the
@@ -286,13 +287,13 @@ class _ZakatCalculatorScreenState extends State<ZakatCalculatorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _row('کل مجموعی مال', 'Rs ${_totalWealth.toStringAsFixed(0)}'),
+          _row('کل مجموعی مال', AppFormat.currency(_totalWealth)),
           const SizedBox(height: 6),
-          _row('نصاب کی حد', 'Rs ${_nisabThreshold.toStringAsFixed(0)}'),
+          _row('نصاب کی حد', AppFormat.currency(_nisabThreshold)),
           const Divider(height: 20),
           _row(
             _aboveNisab ? 'آپ صاحبِ نصاب ہیں' : 'آپ صاحبِ نصاب نہیں ہیں',
-            _aboveNisab ? 'زکوٰۃ لازم (اندازاً 2.5%): Rs ${ZakatService.zakatDue(_totalWealth).toStringAsFixed(0)}' : '',
+            _aboveNisab ? 'زکوٰۃ لازم (اندازاً 2.5%): ${AppFormat.currency(ZakatService.zakatDue(_totalWealth))}' : '',
           ),
         ],
       ),

@@ -21,9 +21,13 @@ class AppConstants {
   // DATABASE
   // ---------------------------------------------------------------------
   static const String dbName = 'pos_app.db';
-  // v2 (Phase 2): adds items, customers, sales, sale_items. See
-  // DBHelper._upgradeSchema — existing installs migrate without losing data.
-  static const int dbVersion = 2;
+  // v4 (Google AI Studio Feature 1): adds `unit` to items and sale_items
+  // (see DBHelper._createFeature1Columns). v3 (Phase 3): adds `type` to
+  // customers (customer/supplier reuse — see Customer model), plus
+  // ledger_entries, employees, employee_transactions and attendance. See
+  // DBHelper._upgradeSchema — existing installs migrate without losing
+  // data.
+  static const int dbVersion = 4;
 
   static const String tableUsers = 'users';
   static const String tableBusinesses = 'businesses';
@@ -36,6 +40,20 @@ class AppConstants {
   static const String tableSales = 'sales';
   static const String tableSaleItems = 'sale_items';
 
+  // ---- Phase 3 tables ----------------------------------------------------
+  /// Every balance-changing event (sale on credit, payment received/made,
+  /// manual adjustment, opening balance) for a row in `customers` — this is
+  /// what powers the per-contact "statement" screen. Without this table we
+  /// only ever had the running `current_balance`, never how it got there.
+  static const String tableLedgerEntries = 'ledger_entries';
+  static const String tableEmployees = 'employees';
+  static const String tableEmployeeTransactions = 'employee_transactions';
+  static const String tableAttendance = 'attendance';
+
+  // ---- Contact types (customers table's `type` column) ------------------
+  static const String contactTypeCustomer = 'customer';
+  static const String contactTypeSupplier = 'supplier';
+
   // ---------------------------------------------------------------------
   // ROLES — used by Phase 2/3 to gate screens & actions
   // ---------------------------------------------------------------------
@@ -44,12 +62,34 @@ class AppConstants {
   static const String roleStaff = 'staff';
 
   // ---------------------------------------------------------------------
+  // PHASE 3 — EMPLOYEE / PAYROLL LEDGER
+  // ---------------------------------------------------------------------
+
+  /// [EmployeeTransaction.type] values.
+  static const String empTxnSalaryPayment = 'salary_payment';
+  static const String empTxnAdvance = 'advance';
+  static const String empTxnBonus = 'bonus';
+  static const String empTxnDeduction = 'deduction';
+
+  /// [AttendanceRecord.status] values.
+  static const String attendancePresent = 'present';
+  static const String attendanceAbsent = 'absent';
+  static const String attendanceLeave = 'leave';
+
+  // ---------------------------------------------------------------------
   // SYNC
   // ---------------------------------------------------------------------
   static const String prefLastSyncKey = 'last_sync_at';
   static const String prefSessionUserKey = 'session_user_uuid';
   static const String prefSessionTokenKey = 'session_token';
   static const String prefLanguageKey = 'app_language'; // 'ur' or 'en'
+
+  // ---------------------------------------------------------------------
+  // GOOGLE AI STUDIO PROMPT — FEATURE 2: App Settings
+  // ---------------------------------------------------------------------
+  static const String prefCurrencyKey = 'app_currency_symbol';
+  static const String prefThemeModeKey = 'app_theme_mode'; // 'system'/'light'/'dark'
+  static const String prefLowStockThresholdKey = 'app_low_stock_threshold';
 
   // ---------------------------------------------------------------------
   // PHASE 2 — INVENTORY
@@ -73,8 +113,31 @@ class AppConstants {
   ];
 
   /// Quantity at or below this is flagged "کم اسٹاک" on the Dashboard and
-  /// Inventory list.
-  static const int lowStockThreshold = 5;
+  /// Inventory list. Mutable (not `const`) since Feature 2 lets the
+  /// shopkeeper change it in Settings — [AppState] is the only thing
+  /// that writes here (via `setLowStockThreshold`, which also persists
+  /// it to `shared_preferences`), the same pattern as
+  /// [AppFormat.currencySymbol]. Kept in `AppConstants` rather than a
+  /// separate helper class since it was already the single reference
+  /// point every call site used.
+  static int lowStockThreshold = 5;
+
+  /// Unit-of-measurement dropdown for the Inventory form's "مقدار" field.
+  /// Last entry ("دیگر") reveals a free-text field, same pattern as
+  /// [defaultItemCategories] above. Existing rows saved before this
+  /// existed read back as [defaultUnit] — see [Item.fromMap].
+  static const String defaultUnit = 'عدد';
+  static const List<String> unitOptions = [
+    'عدد',
+    'کلوگرام',
+    'گرام',
+    'لیٹر',
+    'ملی لیٹر',
+    'درجن',
+    'ڈبہ',
+    'کارٹن',
+    'دیگر',
+  ];
 
   // ---------------------------------------------------------------------
   // PHASE 2 — ZAKAT

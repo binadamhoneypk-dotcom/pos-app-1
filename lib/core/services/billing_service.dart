@@ -1,5 +1,6 @@
 import '../constants/app_constants.dart';
 import '../database/db_helper.dart';
+import '../models/ledger_entry.dart';
 import '../models/sale.dart';
 import '../models/sale_item.dart';
 import '../utils/uuid_helper.dart';
@@ -12,12 +13,14 @@ class BillLineItem {
   final String name;
   final double unitPrice;
   double quantity;
+  final String unit;
 
   BillLineItem({
     this.itemUuid,
     required this.name,
     required this.unitPrice,
     this.quantity = 1,
+    this.unit = 'عدد',
   });
 
   double get lineTotal => unitPrice * quantity;
@@ -67,6 +70,7 @@ class BillingService {
           itemNameSnapshot: line.name,
           unitPrice: line.unitPrice,
           quantity: line.quantity,
+          unit: line.unit,
           lineTotal: line.lineTotal,
           createdAt: now,
           lastUpdated: now,
@@ -113,6 +117,23 @@ class BillingService {
             where: 'uuid = ?',
             whereArgs: [customerUuid],
           );
+
+          // PHASE 3: also record this on the ledger so the customer's
+          // statement screen shows the sale itself, not just a balance
+          // jump. Written via `txn` (not CustomerService, which would
+          // reach for the outer, still-locked Database and hang) so it
+          // rolls back together with the rest of the bill on failure.
+          final ledgerEntry = LedgerEntry(
+            uuid: newUuid(),
+            businessUuid: businessUuid,
+            contactUuid: customerUuid,
+            type: LedgerEntry.typeSale,
+            amount: due,
+            relatedSaleUuid: sale.uuid,
+            createdAt: now,
+            lastUpdated: now,
+          );
+          await txn.insert(AppConstants.tableLedgerEntries, ledgerEntry.toMap());
         }
       }
 

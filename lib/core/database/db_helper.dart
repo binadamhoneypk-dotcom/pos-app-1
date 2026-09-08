@@ -46,6 +46,12 @@ class DBHelper {
     if (oldVersion < 2) {
       await _createPhase2Tables(db);
     }
+    if (oldVersion < 3) {
+      await _createPhase3Tables(db);
+    }
+    if (oldVersion < 4) {
+      await _createFeature1Columns(db);
+    }
   }
 
   Future<void> _createSchema(Database db, int version) async {
@@ -121,6 +127,8 @@ class DBHelper {
         'CREATE INDEX idx_bu_business ON ${AppConstants.tableBusinessUsers}(business_uuid)');
 
     await _createPhase2Tables(db);
+    await _createPhase3Tables(db);
+    await _createFeature1Columns(db);
   }
 
   /// Phase 2 tables — Inventory (`items`), the lightweight `customers`
@@ -231,6 +239,154 @@ class DBHelper {
         'CREATE INDEX IF NOT EXISTS idx_sale_items_synced ON ${AppConstants.tableSaleItems}(is_synced)');
     await db.execute(
         'CREATE INDEX IF NOT EXISTS idx_sale_items_sale ON ${AppConstants.tableSaleItems}(sale_uuid)');
+  }
+
+  /// Phase 3 — Customer/Supplier Ledger (statement + reminders) and the
+  /// Employee/Payroll Ledger. Runs on BOTH a fresh install (right after
+  /// `_createPhase2Tables`, so `customers` already exists without `type`)
+  /// and an upgrade from v2, which is why the `type` column is added via
+  /// a guarded ALTER TABLE rather than baked into `_createPhase2Tables`.
+  Future<void> _createPhase3Tables(Database db) async {
+    // ---- customers.type — lets Suppliers reuse the exact same table,
+    // balance logic and sync wiring as Customers instead of duplicating
+    // all of it in a parallel `suppliers` table. Existing rows default to
+    // 'customer' so Phase 2 data is unaffected. --------------------------
+    final columns = await db.rawQuery('PRAGMA table_info(${AppConstants.tableCustomers})');
+    final hasType = columns.any((c) => c['name'] == 'type');
+    if (!hasType) {
+      await db.execute(
+          "ALTER TABLE ${AppConstants.tableCustomers} ADD COLUMN type TEXT NOT NULL DEFAULT '${AppConstants.contactTypeCustomer}'");
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_customers_type ON ${AppConstants.tableCustomers}(type)');
+    }
+
+    // ---- ledger_entries — one row per balance-changing event for a
+    // customers/suppliers row, so the statement screen can show a real
+    // history instead of just the running current_balance. -------------
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS ${AppConstants.tableLedgerEntries} (
+        uuid TEXT PRIMARY KEY,
+        business_uuid TEXT NOT NULL,
+        contact_uuid TEXT NOT NULL,
+        type TEXT NOT NULL,
+        amount REAL NOT NULL DEFAULT 0,
+        note TEXT,
+        related_sale_uuid TEXT,
+        created_at INTEGER NOT NULL,
+        last_updated INTEGER NOT NULL,
+        is_deleted INTEGER NOT NULL DEFAULT 0,
+        is_synced INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (business_uuid) REFERENCES ${AppConstants.tableBusinesses}(uuid),
+        FOREIGN KEY (contact_uuid) REFERENCES ${AppConstants.tableCustomers}(uuid)
+      )
+    ''');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ledger_entries_synced ON ${AppConstants.tableLedgerEntries}(is_synced)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ledger_entries_business ON ${AppConstants.tableLedgerEntries}(business_uuid)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_ledger_entries_contact ON ${AppConstants.tableLedgerEntries}(contact_uuid)');
+
+    // ---- employees — same uuid/last_updated/is_deleted/is_synced +
+    // balance-tracking pattern as customers, per the locked design.
+    // `user_uuid` is nullable: an employee only gets a login account if
+    // the owner/manager opts in via AuthService.addStaffToBusiness. -----
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS ${AppConstants.tableEmployees} (
+        uuid TEXT PRIMARY KEY,
+        business_uuid TEXT NOT NULL,
+        user_uuid TEXT,
+        name TEXT NOT NULL,
+        phone TEXT,
+        role_title TEXT,
+        monthly_salary REAL NOT NULL DEFAULT 0,
+        current_balance REAL NOT NULL DEFAULT 0,
+        joining_date INTEGER,
+        created_at INTEGER NOT NULL,
+        last_updated INTEGER NOT NULL,
+        is_deleted INTEGER NOT NULL DEFAULT 0,
+        is_synced INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (business_uuid) REFERENCES ${AppConstants.tableBusinesses}(uuid),
+        FOREIGN KEY (user_uuid) REFERENCES ${AppConstants.tableUsers}(uuid)
+      )
+    ''');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_employees_synced ON ${AppConstants.tableEmployees}(is_synced)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_employees_business ON ${AppConstants.tableEmployees}(business_uuid)');
+
+    // ---- employee_transactions — salary payments, advances, bonuses,
+    // deductions. SIGN CONVENTION on `amount`, applied to
+    // employees.current_balance: positive = shop now owes the employee
+    // MORE (unpaid salary/bonus accrued); negative = the employee now
+    // owes the shop (advance given) or a debt was settled (payment/
+    // deduction). See EmployeeService for the exact sign per type. ------
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS ${AppConstants.tableEmployeeTransactions} (
+        uuid TEXT PRIMARY KEY,
+        business_uuid TEXT NOT NULL,
+        employee_uuid TEXT NOT NULL,
+        type TEXT NOT NULL,
+        amount REAL NOT NULL DEFAULT 0,
+        note TEXT,
+        created_at INTEGER NOT NULL,
+        last_updated INTEGER NOT NULL,
+        is_deleted INTEGER NOT NULL DEFAULT 0,
+        is_synced INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (business_uuid) REFERENCES ${AppConstants.tableBusinesses}(uuid),
+        FOREIGN KEY (employee_uuid) REFERENCES ${AppConstants.tableEmployees}(uuid)
+      )
+    ''');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_emp_txn_synced ON ${AppConstants.tableEmployeeTransactions}(is_synced)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_emp_txn_employee ON ${AppConstants.tableEmployeeTransactions}(employee_uuid)');
+
+    // ---- attendance — basic present/absent/leave, one row per
+    // employee per day. `date_key` is 'YYYY-MM-DD' (not an epoch millis)
+    // so "did we already mark today" is a simple string match regardless
+    // of timezone. ---------------------------------------------------
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS ${AppConstants.tableAttendance} (
+        uuid TEXT PRIMARY KEY,
+        business_uuid TEXT NOT NULL,
+        employee_uuid TEXT NOT NULL,
+        date_key TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        last_updated INTEGER NOT NULL,
+        is_deleted INTEGER NOT NULL DEFAULT 0,
+        is_synced INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (business_uuid) REFERENCES ${AppConstants.tableBusinesses}(uuid),
+        FOREIGN KEY (employee_uuid) REFERENCES ${AppConstants.tableEmployees}(uuid),
+        UNIQUE(employee_uuid, date_key)
+      )
+    ''');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_attendance_synced ON ${AppConstants.tableAttendance}(is_synced)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_attendance_employee ON ${AppConstants.tableAttendance}(employee_uuid)');
+  }
+
+  /// Google AI Studio prompt, Feature 1 — unit of measurement. Adds
+  /// `unit` to `items` (the shopkeeper's chosen unit) and `sale_items`
+  /// (a snapshot at sale time, same reasoning as `item_name_snapshot`:
+  /// a bill's history must never change if the item's unit is edited
+  /// later). Guarded the same way as `customers.type` in
+  /// `_createPhase3Tables` so this runs safely on both a fresh install
+  /// and an upgrade.
+  Future<void> _createFeature1Columns(Database db) async {
+    final itemCols = await db.rawQuery('PRAGMA table_info(${AppConstants.tableItems})');
+    if (!itemCols.any((c) => c['name'] == 'unit')) {
+      await db.execute(
+          "ALTER TABLE ${AppConstants.tableItems} ADD COLUMN unit TEXT NOT NULL DEFAULT '${AppConstants.defaultUnit}'");
+    }
+
+    final saleItemCols = await db.rawQuery('PRAGMA table_info(${AppConstants.tableSaleItems})');
+    if (!saleItemCols.any((c) => c['name'] == 'unit')) {
+      await db.execute(
+          "ALTER TABLE ${AppConstants.tableSaleItems} ADD COLUMN unit TEXT NOT NULL DEFAULT '${AppConstants.defaultUnit}'");
+    }
   }
 
   // ------------------------------------------------------------------

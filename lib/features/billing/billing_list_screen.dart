@@ -7,6 +7,7 @@ import '../../core/services/billing_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/calculator_fab.dart';
 import 'new_bill_screen.dart';
+import '../../core/utils/app_format.dart';
 
 /// Tab 2 of [MainShell]. Landing page for Billing: past bills newest
 /// first, with a "+ نیا بل" FAB opening [NewBillScreen].
@@ -100,7 +101,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Rs ${sale.totalAmount.toStringAsFixed(0)}',
+                Text(AppFormat.currency(sale.totalAmount),
                     style: AppFonts.body(fontSize: 14, weight: FontWeight.w700)),
                 Text(DateFormat('d MMM yyyy, h:mm a').format(date),
                     style: AppFonts.body(fontSize: 11.5, color: AppColors.inkSoft)),
@@ -111,7 +112,7 @@ class _BillingListScreenState extends State<BillingListScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(color: AppColors.danger.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-              child: Text('بقایا Rs ${sale.dueAmount.toStringAsFixed(0)}',
+              child: Text('بقایا ${AppFormat.currency(sale.dueAmount)}',
                   style: AppFonts.body(fontSize: 10.5, color: AppColors.danger, weight: FontWeight.w700)),
             ),
         ],

@@ -13,11 +13,13 @@ require_once __DIR__ . '/../config/db.php';
 
 // Only these tables may be synced — never trust the table name from the
 // URL directly, or this becomes an arbitrary-table SQL injection vector.
-// Phase 2 adds items/customers/sales/sale_items to this list — matching
+// Phase 2 added items/customers/sales/sale_items; Phase 3 adds
+// ledger_entries/employees/employee_transactions/attendance — matching
 // lib/core/services/sync_service.dart's syncableTables exactly.
 $ALLOWED_TABLES = [
     'users', 'businesses', 'business_users',
     'items', 'customers', 'sales', 'sale_items',
+    'ledger_entries', 'employees', 'employee_transactions', 'attendance',
 ];
 
 $table = $_GET['table'] ?? '';

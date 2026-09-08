@@ -10,6 +10,7 @@ import '../billing/new_bill_screen.dart';
 import '../inventory/item_form_screen.dart';
 import '../ledger/ledger_screen.dart';
 import 'widgets/zakat_card.dart';
+import '../../core/utils/app_format.dart';
 
 /// Tab 1 of [MainShell]. Replaces Phase 1's placeholder HomeScreen with
 /// the approved layout: sync card, welcome row, two stat cards, the
@@ -115,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(
                       child: _statCard(
                         icon: '💰',
-                        value: _loadingStats ? '...' : 'Rs ${_todaysSales.toStringAsFixed(0)}',
+                        value: _loadingStats ? '...' : AppFormat.currency(_todaysSales),
                         label: 'آج کی فروخت',
                       ),
                     ),

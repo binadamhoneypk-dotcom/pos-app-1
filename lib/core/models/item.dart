@@ -12,6 +12,7 @@ class Item {
   final double purchasePrice;
   final double salePrice;
   final double quantity;
+  final String unit;
   final int createdAt;
   final int lastUpdated;
   final bool isDeleted;
@@ -26,6 +27,7 @@ class Item {
     this.purchasePrice = 0,
     this.salePrice = 0,
     this.quantity = 0,
+    this.unit = AppConstants.defaultUnit,
     required this.createdAt,
     required this.lastUpdated,
     this.isDeleted = false,
@@ -46,6 +48,7 @@ class Item {
         'purchase_price': purchasePrice,
         'sale_price': salePrice,
         'quantity': quantity,
+        'unit': unit,
         'created_at': createdAt,
         'last_updated': lastUpdated,
         'is_deleted': isDeleted ? 1 : 0,
@@ -61,6 +64,9 @@ class Item {
         purchasePrice: (map['purchase_price'] as num?)?.toDouble() ?? 0,
         salePrice: (map['sale_price'] as num?)?.toDouble() ?? 0,
         quantity: (map['quantity'] as num?)?.toDouble() ?? 0,
+        // Rows saved before this column existed (or pulled from a
+        // not-yet-migrated server) come back null — treat as عدد.
+        unit: (map['unit'] as String?)?.trim().isNotEmpty == true ? map['unit'] as String : AppConstants.defaultUnit,
         createdAt: map['created_at'] as int,
         lastUpdated: map['last_updated'] as int,
         isDeleted: (map['is_deleted'] as int) == 1,
@@ -74,6 +80,7 @@ class Item {
     double? purchasePrice,
     double? salePrice,
     double? quantity,
+    String? unit,
     int? lastUpdated,
     bool? isDeleted,
     bool? isSynced,
@@ -87,6 +94,7 @@ class Item {
         purchasePrice: purchasePrice ?? this.purchasePrice,
         salePrice: salePrice ?? this.salePrice,
         quantity: quantity ?? this.quantity,
+        unit: unit ?? this.unit,
         createdAt: createdAt,
         lastUpdated: lastUpdated ?? this.lastUpdated,
         isDeleted: isDeleted ?? this.isDeleted,

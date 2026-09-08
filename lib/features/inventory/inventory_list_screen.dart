@@ -6,6 +6,7 @@ import '../../core/services/item_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/calculator_fab.dart';
 import 'item_form_screen.dart';
+import '../../core/utils/app_format.dart';
 
 /// Tab 3 of [MainShell]. Lists every item in stock for the active
 /// business with a search bar and a "+" FAB → [ItemFormScreen], per the
@@ -123,7 +124,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                   Text(
                     [
                       if (item.category != null && item.category!.isNotEmpty) item.category!,
-                      'مقدار: ${item.quantity.toStringAsFixed(item.quantity == item.quantity.roundToDouble() ? 0 : 2)}',
+                      'مقدار: ${item.quantity.toStringAsFixed(item.quantity == item.quantity.roundToDouble() ? 0 : 2)} ${item.unit}',
                     ].join(' · '),
                     style: AppFonts.body(fontSize: 11.5, color: AppColors.inkSoft),
                   ),
@@ -137,7 +138,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 decoration: BoxDecoration(color: AppColors.danger.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
                 child: Text('کم اسٹاک', style: AppFonts.body(fontSize: 10, color: AppColors.danger, weight: FontWeight.w700)),
               ),
-            Text('Rs ${item.salePrice.toStringAsFixed(0)}',
+            Text(AppFormat.currency(item.salePrice),
                 style: AppFonts.body(fontSize: 13.5, color: AppColors.teal800, weight: FontWeight.w700)),
           ],
         ),

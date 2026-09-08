@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import '../../core/models/customer.dart';
 import '../../core/services/customer_service.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/app_format.dart';
 
 /// Bottom sheet for Billing's customer selection step. Returns the
 /// chosen [Customer], or `null` for "واک اِن گاہک" (walk-in, no ledger
@@ -39,6 +41,29 @@ class _CustomerPickerSheetState extends State<CustomerPickerSheet> {
   Future<void> _quickAdd() async {
     final nameCtrl = TextEditingController(text: _searchCtrl.text);
     final phoneCtrl = TextEditingController();
+
+    Future<void> pickFromContacts() async {
+      final granted = await FlutterContacts.requestPermission(readonly: true);
+      if (!granted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('کانٹیکٹس کی اجازت نہیں ملی — نمبر خود لکھ دیں')));
+        }
+        return;
+      }
+      final picked = await FlutterContacts.openExternalPick();
+      if (picked == null) return;
+      // openExternalPick() sometimes returns a contact without its phone
+      // numbers hydrated yet — re-fetch the full record by id to be sure.
+      final full = await FlutterContacts.getContact(picked.id) ?? picked;
+      final phone = full.phones.isNotEmpty ? full.phones.first.number : null;
+      if (phone != null && phone.trim().isNotEmpty) phoneCtrl.text = phone.trim();
+      // Never overwrite a name the shopkeeper already typed.
+      if (nameCtrl.text.trim().isEmpty && full.displayName.trim().isNotEmpty) {
+        nameCtrl.text = full.displayName.trim();
+      }
+    }
+
     final added = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -48,7 +73,27 @@ class _CustomerPickerSheetState extends State<CustomerPickerSheet> {
           children: [
             TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'نام')),
             const SizedBox(height: 10),
-            TextField(controller: phoneCtrl, decoration: const InputDecoration(labelText: 'فون نمبر (اختیاری)')),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(labelText: 'فون نمبر (اختیاری)'),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // FEATURE 3 (Google AI Studio prompt): pick straight from
+                // the device's contact book instead of typing. Manual
+                // typing above keeps working exactly as before if the
+                // person declines the permission or has no contacts app.
+                IconButton(
+                  onPressed: pickFromContacts,
+                  icon: const Icon(Icons.contact_phone_outlined, color: AppColors.teal700),
+                  tooltip: 'کانٹیکٹس سے منتخب کریں',
+                ),
+              ],
+            ),
           ],
         ),
         actions: [
@@ -114,7 +159,7 @@ class _CustomerPickerSheetState extends State<CustomerPickerSheet> {
                           trailing: due == 0
                               ? null
                               : Text(
-                                  'Rs ${due.abs().toStringAsFixed(0)}',
+                                  AppFormat.currency(due.abs()),
                                   style: TextStyle(
                                     color: due > 0 ? AppColors.success : AppColors.danger,
                                     fontWeight: FontWeight.w700,

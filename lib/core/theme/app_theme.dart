@@ -112,7 +112,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: AppFonts.body(fontSize: 17, color: Colors.white, weight: FontWeight.w600),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.card,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -159,6 +159,96 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
       ),
       dividerColor: AppColors.line,
+    );
+  }
+
+  /// GOOGLE AI STUDIO PROMPT — FEATURE 2: dark mode. Same font families as
+  /// [light] (Noto Sans Arabic body / Noto Nastaliq Urdu headings), a dark
+  /// `ColorScheme` seeded from the same teal, and dark surfaces for every
+  /// stock Material widget (dialogs, `TextField`s not given an explicit
+  /// `fillColor`, `SnackBar`s, switches, the default `AppBar`/bottom-nav
+  /// backgrounds here, etc).
+  ///
+  /// HONEST LIMIT, so nobody is surprised testing this: most Phase 2/3
+  /// screens paint their own `Container`s using the fixed [AppColors]
+  /// constants (`AppColors.card`, `AppColors.paper`, `AppColors.ink`...)
+  /// directly rather than `Theme.of(context)`, exactly like this file's
+  /// own `main.dart` comment already flags ("PHASE 2 screens use fixed
+  /// AppColors... force light mode until Phase 5 does proper dark-mode
+  /// polish across every screen"). This theme makes the Settings toggle
+  /// real and correctly darkens every default Flutter widget, but a
+  /// custom-built screen's card backgrounds will keep looking light until
+  /// that later per-screen pass converts them to theme-aware colours.
+  static ThemeData dark() {
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.teal600,
+        brightness: Brightness.dark,
+        primary: AppColors.teal600,
+        secondary: AppColors.gold500,
+        error: AppColors.danger,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF14201E),
+      textTheme: GoogleFonts.notoSansArabicTextTheme(ThemeData(brightness: Brightness.dark).textTheme),
+    );
+
+    return base.copyWith(
+      appBarTheme: AppBarTheme(
+        backgroundColor: const Color(0xFF0E1917),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: AppFonts.body(fontSize: 17, color: Colors.white, weight: FontWeight.w600),
+      ),
+      cardTheme: CardTheme(
+        color: const Color(0xFF1B2926),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: const BorderSide(color: Color(0xFF2A3835)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF1B2926),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF2A3835), width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF2A3835), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.teal600, width: 1.5),
+        ),
+        labelStyle: AppFonts.body(fontSize: 12.5, color: Colors.white70),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.teal600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          textStyle: AppFonts.body(fontSize: 15, color: Colors.white, weight: FontWeight.w600),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.gold500,
+        foregroundColor: AppColors.ink,
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF0E1917),
+        selectedItemColor: AppColors.gold500,
+        unselectedItemColor: Colors.white54,
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+      ),
+      dividerColor: const Color(0xFF2A3835),
     );
   }
 }

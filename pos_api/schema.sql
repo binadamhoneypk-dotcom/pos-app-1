@@ -65,6 +65,8 @@ CREATE TABLE IF NOT EXISTS items (
   purchase_price DECIMAL(14,2) NOT NULL DEFAULT 0,
   sale_price DECIMAL(14,2) NOT NULL DEFAULT 0,
   quantity DECIMAL(14,3) NOT NULL DEFAULT 0,
+  -- Google AI Studio prompt, Feature 1: unit of measurement (عدد/کلوگرام/...).
+  unit VARCHAR(32) NOT NULL DEFAULT 'عدد',
   created_at BIGINT NOT NULL,
   last_updated BIGINT NOT NULL,
   is_deleted TINYINT(1) NOT NULL DEFAULT 0,
@@ -79,6 +81,9 @@ CREATE TABLE IF NOT EXISTS customers (
   business_uuid CHAR(36) NOT NULL,
   name VARCHAR(255) NOT NULL,
   phone VARCHAR(32),
+  -- PHASE 3: 'customer' or 'supplier' — Suppliers reuse this exact table
+  -- instead of a parallel one; see lib/core/models/customer.dart.
+  type VARCHAR(16) NOT NULL DEFAULT 'customer',
   opening_balance DECIMAL(14,2) NOT NULL DEFAULT 0,
   current_balance DECIMAL(14,2) NOT NULL DEFAULT 0,
   created_at BIGINT NOT NULL,
@@ -86,6 +91,7 @@ CREATE TABLE IF NOT EXISTS customers (
   is_deleted TINYINT(1) NOT NULL DEFAULT 0,
   INDEX idx_customers_last_updated (last_updated),
   INDEX idx_customers_business (business_uuid),
+  INDEX idx_customers_type (type),
   FOREIGN KEY (business_uuid) REFERENCES businesses(uuid)
 );
 
@@ -115,6 +121,7 @@ CREATE TABLE IF NOT EXISTS sale_items (
   item_name_snapshot VARCHAR(255) NOT NULL,
   unit_price DECIMAL(14,2) NOT NULL DEFAULT 0,
   quantity DECIMAL(14,3) NOT NULL DEFAULT 0,
+  unit VARCHAR(32) NOT NULL DEFAULT 'عدد',
   line_total DECIMAL(14,2) NOT NULL DEFAULT 0,
   created_at BIGINT NOT NULL,
   last_updated BIGINT NOT NULL,
@@ -123,4 +130,85 @@ CREATE TABLE IF NOT EXISTS sale_items (
   INDEX idx_sale_items_sale (sale_uuid),
   FOREIGN KEY (sale_uuid) REFERENCES sales(uuid),
   FOREIGN KEY (item_uuid) REFERENCES items(uuid)
+);
+
+-- ============================================================================
+-- PHASE 3 — matches lib/core/database/db_helper.dart _createPhase3Tables()
+-- exactly.
+--
+-- If your MySQL database already exists from Phase 2 (customers table
+-- already created without `type`), run this once — MySQL 8.0.29+ supports
+-- IF NOT EXISTS on ADD COLUMN; on older MySQL, drop the "IF NOT EXISTS"
+-- and ignore the duplicate-column error if you re-run this file:
+--   ALTER TABLE customers ADD COLUMN IF NOT EXISTS type VARCHAR(16) NOT NULL DEFAULT 'customer';
+--   ALTER TABLE customers ADD INDEX IF NOT EXISTS idx_customers_type (type);
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS ledger_entries (
+  uuid CHAR(36) PRIMARY KEY,
+  business_uuid CHAR(36) NOT NULL,
+  contact_uuid CHAR(36) NOT NULL,
+  type VARCHAR(32) NOT NULL,
+  amount DECIMAL(14,2) NOT NULL DEFAULT 0,
+  note TEXT,
+  related_sale_uuid CHAR(36) NULL,
+  created_at BIGINT NOT NULL,
+  last_updated BIGINT NOT NULL,
+  is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+  INDEX idx_ledger_entries_last_updated (last_updated),
+  INDEX idx_ledger_entries_business (business_uuid),
+  INDEX idx_ledger_entries_contact (contact_uuid),
+  FOREIGN KEY (business_uuid) REFERENCES businesses(uuid),
+  FOREIGN KEY (contact_uuid) REFERENCES customers(uuid)
+);
+
+CREATE TABLE IF NOT EXISTS employees (
+  uuid CHAR(36) PRIMARY KEY,
+  business_uuid CHAR(36) NOT NULL,
+  user_uuid CHAR(36) NULL,
+  name VARCHAR(255) NOT NULL,
+  phone VARCHAR(32),
+  role_title VARCHAR(128),
+  monthly_salary DECIMAL(14,2) NOT NULL DEFAULT 0,
+  current_balance DECIMAL(14,2) NOT NULL DEFAULT 0,
+  joining_date BIGINT NULL,
+  created_at BIGINT NOT NULL,
+  last_updated BIGINT NOT NULL,
+  is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+  INDEX idx_employees_last_updated (last_updated),
+  INDEX idx_employees_business (business_uuid),
+  FOREIGN KEY (business_uuid) REFERENCES businesses(uuid),
+  FOREIGN KEY (user_uuid) REFERENCES users(uuid)
+);
+
+CREATE TABLE IF NOT EXISTS employee_transactions (
+  uuid CHAR(36) PRIMARY KEY,
+  business_uuid CHAR(36) NOT NULL,
+  employee_uuid CHAR(36) NOT NULL,
+  type VARCHAR(32) NOT NULL,
+  amount DECIMAL(14,2) NOT NULL DEFAULT 0,
+  note TEXT,
+  created_at BIGINT NOT NULL,
+  last_updated BIGINT NOT NULL,
+  is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+  INDEX idx_emp_txn_last_updated (last_updated),
+  INDEX idx_emp_txn_employee (employee_uuid),
+  FOREIGN KEY (business_uuid) REFERENCES businesses(uuid),
+  FOREIGN KEY (employee_uuid) REFERENCES employees(uuid)
+);
+
+CREATE TABLE IF NOT EXISTS attendance (
+  uuid CHAR(36) PRIMARY KEY,
+  business_uuid CHAR(36) NOT NULL,
+  employee_uuid CHAR(36) NOT NULL,
+  date_key VARCHAR(10) NOT NULL,
+  status VARCHAR(16) NOT NULL,
+  created_at BIGINT NOT NULL,
+  last_updated BIGINT NOT NULL,
+  is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+  UNIQUE KEY uniq_employee_date (employee_uuid, date_key),
+  INDEX idx_attendance_last_updated (last_updated),
+  INDEX idx_attendance_employee (employee_uuid),
+  FOREIGN KEY (business_uuid) REFERENCES businesses(uuid),
+  FOREIGN KEY (employee_uuid) REFERENCES employees(uuid)
 );

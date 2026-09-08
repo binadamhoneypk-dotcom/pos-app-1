@@ -6,6 +6,7 @@ import '../../core/services/item_service.dart';
 import '../../core/services/premium_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/premium_gate.dart';
+import '../../core/utils/app_format.dart';
 
 /// "+ نئی چیز شامل کریں" پر ایک الگ سکرین کھلے جس میں دو حصے ہوں:
 /// (1) انوینٹری میں سے search/select کرنا، (2) بار کوڈ/QR کیمرے سے
@@ -56,7 +57,7 @@ class _AddBillItemScreenState extends State<AddBillItemScreen> {
     if (qty == null || qty <= 0) return;
     if (!mounted) return;
     Navigator.of(context).pop(
-      BillLineItem(itemUuid: item.uuid, name: item.name, unitPrice: item.salePrice, quantity: qty),
+      BillLineItem(itemUuid: item.uuid, name: item.name, unitPrice: item.salePrice, quantity: qty, unit: item.unit),
     );
   }
 
@@ -70,7 +71,7 @@ class _AddBillItemScreenState extends State<AddBillItemScreen> {
           controller: ctrl,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(labelText: 'مقدار'),
+          decoration: InputDecoration(labelText: 'مقدار (${item.unit})'),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('منسوخ کریں')),
@@ -158,8 +159,8 @@ class _AddBillItemScreenState extends State<AddBillItemScreen> {
                         final item = _items[i];
                         return ListTile(
                           title: Text(item.name),
-                          subtitle: Text('اسٹاک: ${item.quantity.toStringAsFixed(0)}'),
-                          trailing: Text('Rs ${item.salePrice.toStringAsFixed(0)}',
+                          subtitle: Text('اسٹاک: ${item.quantity.toStringAsFixed(0)} ${item.unit}'),
+                          trailing: Text(AppFormat.currency(item.salePrice),
                               style: AppFonts.body(fontSize: 13, color: AppColors.teal800, weight: FontWeight.w700)),
                           onTap: () => _pickItem(item),
                         );
