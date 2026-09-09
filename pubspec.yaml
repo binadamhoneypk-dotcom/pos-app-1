@@ -60,7 +60,6 @@ dependencies:
   # Reminder feature: opens the OS share sheet with a pre-written
   # SMS/WhatsApp-ready message (lib/features/ledger/reminder_helper.dart).
   share_plus: ^10.1.2
-
   # Reminder feature: optional direct "WhatsApp پر بھیجیں" quick action
   # via a wa.me deep link when the contact has a phone number saved.
   url_launcher: ^6.3.1
