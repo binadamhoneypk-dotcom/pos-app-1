@@ -202,7 +202,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: AppFonts.body(fontSize: 17, color: Colors.white, weight: FontWeight.w600),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: const Color(0xFF1B2926),
         elevation: 0,
         shape: RoundedRectangleBorder(
