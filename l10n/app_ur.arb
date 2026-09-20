@@ -1,0 +1,431 @@
+{
+  "@@locale": "ur",
+
+  "navDashboard": "ڈیش بورڈ",
+  "@navDashboard": {"description": "Bottom nav — dashboard tab"},
+  "navBilling": "بلنگ",
+  "@navBilling": {"description": "Bottom nav — billing tab"},
+  "navInventory": "انوینٹری",
+  "@navInventory": {"description": "Bottom nav — inventory tab"},
+  "navLedger": "کھاتہ",
+  "@navLedger": {"description": "Bottom nav — customer ledger tab"},
+  "navMore": "مزید",
+  "@navMore": {"description": "Bottom nav — more/settings tab"},
+
+  "appTitle": "دکان مینجمنٹ ایپ",
+  "phoneNumber": "فون نمبر",
+  "password": "پاس ورڈ",
+  "loginButton": "لاگ ان کریں",
+  "createAccount": "نیا اکاؤنٹ بنائیں (نئی دکان رجسٹر کریں)",
+  "invalidCredentials": "فون نمبر یا پاس ورڈ غلط ہے",
+
+  "settingsTitle": "ایپ کی سیٹنگز",
+  "language": "زبان",
+  "urdu": "اردو",
+  "english": "English",
+  "currencySymbol": "کرنسی سمبل",
+  "currencyHint": "مثلاً: Rs, ₨, PKR",
+  "save": "محفوظ کریں",
+  "currencySaved": "کرنسی محفوظ ہو گئی",
+  "currencyHelp": "یہ سمبل پوری ایپ میں ہر جگہ قیمت کے ساتھ استعمال ہوگا۔",
+  "darkMode": "ڈارک موڈ",
+  "themeSystem": "سسٹم کے مطابق",
+  "themeLight": "لائٹ (روشن)",
+  "themeDark": "ڈارک (تاریک)",
+  "lowStockThreshold": "کم اسٹاک کی حد",
+  "lowStockHint": "مثلاً: 5",
+  "invalidNumber": "درست نمبر درج کریں",
+  "lowStockSaved": "کم اسٹاک کی حد محفوظ ہو گئی",
+  "lowStockHelp": "اس مقدار یا اس سے کم ہونے پر چیز \"کم اسٹاک\" میں شمار ہوگی۔",
+
+  "dashboardTitleFallback": "ڈیش بورڈ",
+  "switchShop": "دکان تبدیل کریں",
+  "logout": "لاگ آؤٹ",
+  "welcomeRolePrefix": "خوش آمدید، آپ کا کردار: ",
+  "todaysSales": "آج کی فروخت",
+  "lowStockItems": "کم اسٹاک اشیاء",
+  "syncLocalMessage": "ڈیٹا مقامی طور پر محفوظ ہے۔ انٹرنیٹ آنے پر خودکار مطابقت ہوگی۔",
+  "syncNow": "ابھی مطابقت کریں",
+  "syncCompleteMessage": "مطابقت مکمل ہوئی — بھیجا گیا: {pushed}, وصول کیا: {pulled}",
+  "@syncCompleteMessage": {
+    "placeholders": {
+      "pushed": {"type": "int"},
+      "pulled": {"type": "int"}
+    }
+  },
+  "makeBill": "بل بنائیں",
+  "makeBillHint": "گاہک کا بل تیار کریں",
+  "itemList": "مال کی فہرست",
+  "itemListHint": "دکان کا سامان (انوینٹری)",
+  "customerLedger": "گاہک کا کھاتہ",
+  "customerLedgerHint": "ادھار اور واجب الادا رقم",
+  "calculatorMenuItem": "کیلکولیٹر",
+  "calculatorMenuHint": "ہر سکرین پر بھی دستیاب",
+  "reports": "رپورٹس",
+  "staff": "عملہ",
+  "phaseTag": "فیز {number}",
+  "@phaseTag": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "roleOwner": "مالک",
+  "roleManager": "منیجر",
+  "roleStaff": "عملہ",
+  "roleUnknown": "-",
+
+  "inventorySearchHint": "چیز کا نام یا بار کوڈ تلاش کریں",
+  "inventoryEmptyMessage": "کوئی چیز نہیں ملی — نیچے \"+\" سے نئی چیز شامل کریں",
+  "quantityLabel": "مقدار: {qty} {unit}",
+  "@quantityLabel": {
+    "placeholders": {
+      "qty": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
+  "lowStockBadge": "کم اسٹاک",
+
+  "cancel": "منسوخ کریں",
+  "add": "شامل کریں",
+  "ok": "ٹھیک ہے",
+  "upgrade": "اپ گریڈ کریں",
+  "delete": "حذف کریں",
+  "settled": "برابر",
+  "amountLabel": "رقم",
+  "noteOptionalLabel": "نوٹ (اختیاری)",
+  "nameLabel": "نام",
+  "phoneOptionalLabel": "فون نمبر (اختیاری)",
+  "addNewCustomerTitle": "نیا گاہک شامل کریں",
+  "contactsPermissionDeniedMessage": "کانٹیکٹس کی اجازت نہیں ملی — نمبر خود لکھ دیں",
+
+  "quantityUnitLabel": "مقدار ({unit})",
+  "@quantityUnitLabel": {
+    "placeholders": {"unit": {"type": "String"}}
+  },
+  "barcodeNotFoundMessage": "کوئی چیز اس بار کوڈ ({code}) سے نہیں ملی — پہلے انوینٹری میں شامل کریں",
+  "@barcodeNotFoundMessage": {
+    "placeholders": {"code": {"type": "String"}}
+  },
+  "addNewItemTitle": "نئی چیز شامل کریں",
+  "searchButton": "تلاش کریں",
+  "scanBarcodeButton": "بار کوڈ سکین",
+  "autoBarcodeScanFeature": "کیمرے سے خودکار بار کوڈ سکین",
+  "noItemFoundMessage": "کوئی چیز نہیں ملی",
+  "stockLabel": "اسٹاک: {qty} {unit}",
+  "@stockLabel": {
+    "placeholders": {"qty": {"type": "String"}, "unit": {"type": "String"}}
+  },
+
+  "billingTitle": "بلنگ",
+  "noBillsYetMessage": "ابھی تک کوئی بل نہیں بنایا گیا — نیچے \"+\" سے نیا بل بنائیں",
+  "dueAmountBadge": "بقایا {amount}",
+  "@dueAmountBadge": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+
+  "pickFromContactsTooltip": "کانٹیکٹس سے منتخب کریں",
+  "selectCustomerTitle": "گاہک منتخب کریں",
+  "newLabel": "نیا",
+  "searchNamePhoneHint": "نام یا فون نمبر تلاش کریں",
+  "walkInCustomerTitle": "واک اِن گاہک (بغیر کھاتے کے)",
+
+  "billNeedsItemMessage": "بل میں کم از کم ایک چیز شامل کریں",
+  "newBillTitle": "نیا بل",
+  "customerNameOptionalLabel": "گاہک کا نام (اختیاری)",
+  "walkInCustomerTapToChangeLabel": "واک اِن گاہک — تبدیل کرنے کے لیے دبائیں",
+  "totalAmountLabel": "کل رقم",
+  "receivedAmountLabel": "وصول شدہ رقم (خالی چھوڑیں تو مکمل رقم وصول ظاہر ہوگی)",
+  "saveBillButton": "بل محفوظ کریں",
+  "oldDueOwedToYouLabel": "پرانا بقایا — آپ کو ملنا ہے: {amount}",
+  "@oldDueOwedToYouLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "oldDueYouOweLabel": "پرانا بقایا — آپ نے دینا ہے: {amount}",
+  "@oldDueYouOweLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+
+  "multiBusinessFeatureLabel": "متعدد دکانیں (ایک اکاؤنٹ سے ایک سے زیادہ دکانیں)",
+  "addNewShopTitle": "نئی دکان شامل کریں",
+  "shopNameLabel": "دکان کا نام",
+  "shopTypeLabel": "دکان کی قسم",
+  "selectYourShopTitle": "اپنی دکان منتخب کریں",
+  "noShopFoundMessage": "کوئی دکان نہیں ملی",
+  "businessTypeGeneralStore": "جنرل سٹور",
+  "businessTypeRestaurant": "ریسٹورنٹ",
+  "businessTypePharmacy": "میڈیکل سٹور",
+  "businessTypeWorkshop": "ورکشاپ",
+  "businessTypeOther": "دیگر",
+
+  "zakatInfoTapForDetailsMessage": "زکوٰۃ کی معلومات — تفصیل دیکھنے کے لیے دبائیں",
+  "aboveNisabMessage": "آپ صاحبِ نصاب ہیں",
+  "nisabInfoNotSetMessage": "نصاب کی معلومات ابھی سیٹ نہیں کی گئیں",
+  "fullZakatInfoFeatureLabel": "زکوٰۃ کی مکمل معلومات اور کیلکولیٹر",
+  "zakatWord": "زکوٰۃ",
+
+  "zakatStatusLabel": "زکوٰۃ کی حیثیت",
+  "nisabNotSetYetLabel": "نصاب ابھی سیٹ نہیں",
+  "aboveNisabDateLabel": "صاحبِ نصاب بننے کی تاریخ",
+  "lunarYearCompletionDateLabel": "قمری سال مکمل ہونے کی متوقع تاریخ",
+  "nisabThresholdLocalCurrencyLabel": "نصاب کی حد (مقامی کرنسی)",
+  "zakatInfoNotEnteredMessage": "ابھی تک آپ نے زکوٰۃ کیلکولیٹر میں اپنی نصاب کی معلومات درج نہیں کیں۔ اپنا مجموعی مال درج کر کے معلوم کریں کہ آپ صاحبِ نصاب ہیں یا نہیں۔",
+  "zakatDisclaimerMessage": "یہ ایک معاون اندازہ ہے، حتمی شرعی فتویٰ نہیں۔ حتمی مسئلے کے لیے براہ کرم اپنے مسلک کے مفتی صاحب سے رجوع کریں۔",
+  "rerunZakatCalculatorButton": "زکوٰۃ کیلکولیٹر دوبارہ چلائیں",
+  "openZakatCalculatorButton": "زکوٰۃ کیلکولیٹر کھولیں",
+
+  "employeeLedgerTitle": "ملازمین کا کھاتہ",
+  "owedToEmployeesLabel": "ملازمین کو دینا ہے (تنخواہ)",
+  "owedByEmployeesLabel": "ملازمین سے لینا ہے (ایڈوانس)",
+  "noEmployeesYetMessage": "ابھی تک کوئی ملازم شامل نہیں — نیچے دیے بٹن سے شامل کریں",
+  "salaryLabel": "تنخواہ {amount}",
+  "@salaryLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+
+  "owedToEmployeeLabel": "ملازم کو دینا ہے (بقایا تنخواہ/بونس)",
+  "owedByEmployeeLabel": "ملازم سے لینا ہے (ایڈوانس)",
+  "monthlySalaryLabel": "ماہانہ تنخواہ: {amount}",
+  "@monthlySalaryLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "paySalaryButton": "تنخواہ ادا کریں",
+  "giveAdvanceButton": "ایڈوانس دیں",
+  "addBonusButton": "بونس شامل کریں",
+  "applyDeductionButton": "کٹوتی کریں",
+  "bonusWord": "بونس",
+  "deductionWord": "کٹوتی",
+  "todayAttendanceLabel": "آج کی حاضری",
+  "attendancePresentLabel": "حاضر",
+  "attendanceAbsentLabel": "غیر حاضر",
+  "attendanceLeaveLabel": "رخصت",
+  "ledgerStatementLabel": "کھاتہ / سٹیٹمنٹ",
+  "noEntriesYetMessage": "ابھی تک کوئی انٹری نہیں",
+  "salaryPaidLabel": "تنخواہ ادا کی گئی",
+  "advanceGivenLabel": "ایڈوانس دیا گیا",
+
+  "nameRequiredMessage": "نام ضروری ہے",
+  "loginRequiresPhonePasswordMessage": "لاگ اِن اکاؤنٹ کے لیے فون نمبر اور کم از کم 4 حروف کا پاس ورڈ درکار ہے",
+  "saveFailedMessage": "محفوظ نہیں ہو سکا: {error}",
+  "@saveFailedMessage": {
+    "placeholders": {"error": {"type": "String"}}
+  },
+  "addNewEmployeeTitle": "نیا ملازم شامل کریں",
+  "phoneRequiredForLoginLabel": "فون نمبر (لاگ اِن کے لیے ضروری)",
+  "roleTitleOptionalLabel": "عہدہ (مثلاً سیلز مین) — اختیاری",
+  "monthlySalaryFieldLabel": "ماہانہ تنخواہ",
+  "createLoginAccountLabel": "اس ملازم کا ایپ لاگ اِن اکاؤنٹ بھی بنائیں",
+  "createLoginAccountSubtitle": "ملازم اپنے فون نمبر اور پاس ورڈ سے ایپ میں لاگ اِن کر سکے گا",
+  "passwordMinCharsLabel": "پاس ورڈ (کم از کم 4 حروف)",
+
+  "unlimitedItemsFeatureLabel": "لامحدود انوینٹری آئٹمز (فری حد {limit} ہے)",
+  "@unlimitedItemsFeatureLabel": {
+    "placeholders": {"limit": {"type": "int"}}
+  },
+  "deleteItemQuestionTitle": "چیز حذف کریں؟",
+  "deleteItemConfirmMessage": "\"{name}\" کو مستقل طور پر حذف کر دیا جائے گا۔",
+  "@deleteItemConfirmMessage": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "editItemTitle": "چیز میں ترمیم کریں",
+  "itemNameLabel": "چیز کا نام",
+  "itemNameHintExample": "مثلاً: چینی 1 کلو",
+  "enterNameMessage": "نام درج کریں",
+  "categoryLabel": "کیٹیگری",
+  "selectCategoryHint": "کیٹیگری منتخب کریں",
+  "enterCategoryNameHint": "کیٹیگری کا نام لکھیں",
+  "barcodeLabel": "بار کوڈ",
+  "barcodeOptionalHint": "بار کوڈ نمبر (اختیاری)",
+  "purchasePricePerUnitLabel": "خریداری قیمت (فی یونٹ)",
+  "salePricePerUnitLabel": "فروخت قیمت (فی یونٹ)",
+  "enterValidPriceMessage": "درست قیمت درج کریں",
+  "quantityFieldLabel": "مقدار",
+  "enterValidQuantityMessage": "درست مقدار درج کریں",
+  "unitLabelShort": "یونٹ",
+  "enterUnitNameHint": "یونٹ کا نام لکھیں (مثلاً: بوری)",
+
+  "categoryGrocery": "گروسری",
+  "categoryBeverages": "مشروبات",
+  "categoryMedicines": "ادویات",
+  "categoryCosmetics": "کاسمیٹکس",
+  "categoryElectronics": "الیکٹرانکس",
+  "categoryFoodItems": "کھانے پینے کی اشیاء",
+  "categoryClothes": "کپڑے",
+  "categorySpareParts": "پرزہ جات (اسپیئر پارٹس)",
+  "unitPiece": "عدد",
+  "unitKilogram": "کلوگرام",
+  "unitGram": "گرام",
+  "unitLitre": "لیٹر",
+  "unitMillilitre": "ملی لیٹر",
+  "unitDozen": "درجن",
+  "unitBox": "ڈبہ",
+  "unitCarton": "کارٹن",
+
+  "addNewSupplierTitle": "نیا سپلائر شامل کریں",
+  "openingBalanceWeOweLabel": "ابتدائی بقایا (ہم پر واجب) — اختیاری",
+  "openingBalanceTheyOweLabel": "ابتدائی بقایا (ان پر واجب) — اختیاری",
+
+  "reminderCustomerTheyOweMessage": "محترم {name}, آپ کے کھاتے میں {amount} بقایا ہے۔ براہ کرم جلد ادائیگی کریں۔ شکریہ۔",
+  "@reminderCustomerTheyOweMessage": {
+    "placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}
+  },
+  "reminderSupplierTheyOweMessage": "محترم {name}, ہمارے کھاتے میں آپ کی جانب سے {amount} وصول کیے جانے ہیں۔ براہ کرم رابطہ کریں۔ شکریہ۔",
+  "@reminderSupplierTheyOweMessage": {
+    "placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}
+  },
+  "reminderCustomerWeOweMessage": "محترم {name}, آپ کا {amount} ہمارے ذمے ہے۔ جلد ادائیگی کر دی جائے گی۔ شکریہ۔",
+  "@reminderCustomerWeOweMessage": {
+    "placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}
+  },
+  "reminderSupplierWeOweMessage": "محترم {name}, ہمارے کھاتے میں آپ کو {amount} ادا کرنے ہیں۔ جلد ادائیگی کر دی جائے گی۔ شکریہ۔",
+  "@reminderSupplierWeOweMessage": {
+    "placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}
+  },
+  "reminderSettledMessage": "محترم {name}, آپ کا کھاتہ فی الحال برابر ہے۔ شکریہ۔",
+  "@reminderSettledMessage": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+
+  "sendViaWhatsappLabel": "WhatsApp پر بھیجیں",
+  "sendViaShareSheetLabel": "شیئر شیٹ سے بھیجیں (SMS/دیگر)",
+  "paymentToSupplierLabel": "ادائیگی (ہم سے سپلائر کو)",
+  "paymentFromCustomerLabel": "ادائیگی وصول کریں (گاہک سے)",
+  "youWillGetLabel": "آپ کو ملنا ہے",
+  "youWillGiveLabel": "آپ نے دینا ہے",
+  "reminderTooltip": "یاد دہانی",
+  "recordPaymentButton": "ادائیگی ریکارڈ کریں",
+  "receivePaymentButton": "ادائیگی وصول کریں",
+  "entryTypeSaleLabel": "بل (ادھار)",
+  "entryTypePaymentReceivedLabel": "ادائیگی وصول ہوئی",
+  "entryTypePaymentMadeLabel": "ادائیگی کی گئی",
+  "entryTypeAdjustmentLabel": "ایڈجسٹمنٹ",
+  "entryTypeOpeningBalanceLabel": "ابتدائی بقایا",
+
+  "supplierLedgerFeatureLabel": "سپلائر کھاتہ",
+  "ledgerTitle": "کھاتہ",
+  "customersTabLabel": "گاہک",
+  "suppliersTabLabel": "سپلائرز",
+  "supplierLedgerPremiumTitle": "سپلائر کھاتہ پریمیم فیچر ہے",
+  "supplierLedgerPremiumMessage": "سپلائرز کا کھاتہ دیکھنے کے لیے پریمیم پلان درکار ہے۔",
+  "noSuppliersYetMessage": "ابھی تک کوئی سپلائر شامل نہیں — نیچے دیے بٹن سے شامل کریں",
+  "noCustomersYetMessage": "ابھی تک کوئی گاہک شامل نہیں — بل بناتے وقت یا نیچے دیے بٹن سے شامل کریں",
+
+  "letterheadSavedMessage": "بل کی سیٹنگز محفوظ ہو گئیں",
+  "billSettingsTitle": "بل کی سیٹنگز",
+  "billSettingsSavedNoticeMessage": "یہ سیٹنگز محفوظ ہو جائیں گی۔ اصل PDF بل پر ان کا اطلاق فیز 4 میں شامل ہوگا۔",
+  "logoLabel": "لوگو",
+  "uploadLogoPhase4Label": "لوگو اپلوڈ کریں (فیز 4)",
+  "logoPositionLabel": "لوگو کی پوزیشن",
+  "rightCornerLabel": "دائیں کونا",
+  "leftCornerLabel": "بائیں کونا",
+  "shopOwnerNameLabel": "دکاندار کا نام",
+  "shopOwnerNameHintExample": "مثلاً: الرحمن جنرل سٹور",
+  "fontLabel": "فونٹ",
+  "centerWatermarkLabel": "درمیانی واٹرمارک",
+  "noneLabel": "کوئی نہیں",
+  "fullNameOrLogoLabel": "پورا نام / لوگو",
+  "initialsLabel": "مخفف (initials)",
+  "initialsHintExample": "مثلاً: TK",
+  "fullNameLabel": "پورا نام",
+  "mobileNumberWatermarkHint": "موبائل نمبر (واٹرمارک کے ساتھ دکھایا جائے گا)",
+  "livePreviewLabel": "Live Preview",
+
+  "fullZakatCalculatorFeatureLabel": "مکمل زکوٰۃ کیلکولیٹر",
+  "employeeLedgerOwnerManagerOnlyMessage": "ملازمین کا کھاتہ دیکھنے کی اجازت صرف مالک/منیجر کو ہے",
+  "moreTabTitle": "مزید",
+  "premiumActiveLabel": "پریمیم پلان فعال ہے",
+  "viewPremiumPlanDetailsLabel": "پریمیم پلان کی تفصیلات دیکھیں",
+  "appSettingsTitle": "ایپ کی سیٹنگز",
+  "languageUrduEnglishLabel": "زبان (اردو/انگریزی)",
+  "billSettingsSubtitle": "لوگو، واٹرمارک، فونٹ (Phase 4 میں مکمل اطلاق)",
+  "zakatCalculatorSubtitle": "نصاب، شروع کی تاریخ، حساب",
+  "employeeLedgerSubtitle": "تنخواہ، ایڈوانس، حاضری",
+  "syncNowLabel": "ابھی مطابقت کریں",
+  "syncWithLocalServerSubtitle": "مقامی ڈیٹا سرور سے ملائیں",
+  "aboutAppLabel": "ایپ کے بارے میں",
+  "aboutAppSubtitle": "دکان مینجمنٹ ایپ — Phase 2",
+  "logoutLabel": "لاگ آؤٹ",
+  "appNameLabel": "دکان مینجمنٹ ایپ",
+  "logoutQuestionTitle": "لاگ آؤٹ کریں؟",
+
+  "autoBarcodeQrScanFeatureLabel": "کیمرے سے خودکار بار کوڈ/QR سکین",
+  "noSeparateScannerNeededMessage": "الگ ہارڈویئر اسکینر کی ضرورت نہیں",
+  "nisabLunarYearDetailMessage": "نصاب، قمری سال کا حساب، اور تفصیلی معلومات",
+  "multipleShopsFeatureLabel": "متعدد دکانیں",
+  "runMultipleShopsMessage": "ایک اکاؤنٹ سے ایک سے زیادہ دکانیں چلائیں",
+  "unlimitedInventoryItemsFeatureLabel": "لامحدود انوینٹری آئٹمز",
+  "freeItemLimitMessage": "فری پلان میں {limit} آئٹمز کی حد ہے",
+  "@freeItemLimitMessage": {
+    "placeholders": {"limit": {"type": "int"}}
+  },
+  "staffManagerAccountsFeatureLabel": "عملہ/منیجر اکاؤنٹس",
+  "separateTeamLoginsMessage": "اپنی ٹیم کو الگ لاگ اِن دیں (فیز 3)",
+  "reportsExportFeatureLabel": "رپورٹس اور ایکسپورٹ",
+  "fullSalesProfitReportsMessage": "فروخت اور منافع کی مکمل رپورٹس (فیز 4)",
+  "pdfBillLogoWatermarkFeatureLabel": "PDF بل + لوگو/واٹرمارک",
+  "printedBillsBrandingMessage": "اپنی برانڈنگ کے ساتھ پرنٹ شدہ بل (فیز 4)",
+  "multiDeviceSyncFeatureLabel": "ملٹی ڈیوائس Sync",
+  "runSameShopMultipleDevicesMessage": "ایک ہی دکان کو ایک سے زیادہ فون/ڈیوائسز پر چلائیں",
+  "premiumUpgradeTitle": "پریمیم اپ گریڈ",
+  "premiumPlanActiveMessage": "آپ کا پریمیم پلان فعال ہے",
+  "onFreePlanMessage": "آپ فری پلان پر ہیں",
+  "premiumPlanIncludesLabel": "پریمیم پلان میں شامل ہے:",
+  "paymentNotYetAddedMessage": "پیمنٹ ابھی شامل نہیں کی گئی — نیچے ٹیسٹنگ ٹوگل استعمال کریں",
+  "buyNowLabel": "ابھی خریدیں",
+  "testingSectionTitle": "ٹیسٹنگ (پیمنٹ آنے تک عارضی)",
+  "testingSectionDescriptionMessage": "اصل پیمنٹ سسٹم آنے تک، یہاں سے دستی طور پر پریمیم آن/آف کر کے دونوں حالتیں ٹیسٹ کریں۔",
+  "premiumTestingModeLabel": "پریمیم (ٹیسٹنگ موڈ)",
+
+  "rateFetchFailedMessage": "ریٹ حاصل نہیں ہو سکا — براہ کرم دستی طور پر درج کریں",
+  "selectAboveNisabDateMessage": "آپ صاحبِ نصاب ہیں — براہ کرم وہ تاریخ منتخب کریں جب سے آپ صاحبِ نصاب ہیں",
+  "zakatCalculatorTitle": "زکوٰۃ کیلکولیٹر",
+  "cashAndDueAmountSectionLabel": "نقدی اور بقایا رقم",
+  "cashInHandBankLabel": "نقد رقم (ہاتھ اور بینک میں)",
+  "receivableFromCustomersLabel": "گاہکوں سے وصولی (کھاتے سے خودکار)",
+  "tradeGoodsValueLabel": "مالِ تجارت کی مالیت (انوینٹری سے خودکار)",
+  "goldSilverSectionLabel": "سونا / چاندی",
+  "goldGramsLabel": "سونا (گرام)",
+  "goldRatePerGramLabel": "سونا ریٹ / گرام",
+  "silverGramsLabel": "چاندی (گرام)",
+  "silverRatePerGramLabel": "چاندی ریٹ / گرام",
+  "fetchOnlineRateNowLabel": "ابھی آن لائن ریٹ لائیں",
+  "onlineRateProviderNotSetMessage": "آن لائن ریٹ فراہم کنندہ سیٹ نہیں — دستی درج کریں",
+  "nisabStandardSectionLabel": "نصاب کا معیار",
+  "bySilverStandardLabel": "چاندی کے معیار سے (زیادہ احتیاط)",
+  "byGoldStandardLabel": "سونے کے معیار سے",
+  "selectDateFirstTimeTodayLabel": "تاریخ منتخب کریں (پہلی بار آج منتخب کریں)",
+  "zakatShortDisclaimerMessage": "یہ ایک معاون اندازہ ہے، حتمی شرعی فتویٰ نہیں — اپنے مسلک کے مفتی صاحب سے رجوع کریں۔",
+  "totalWealthLabel": "کل مجموعی مال",
+  "nisabThresholdLabel": "نصاب کی حد",
+  "notAboveNisabMessage": "آپ صاحبِ نصاب نہیں ہیں",
+  "zakatDueApproxMessage": "زکوٰۃ لازم (اندازاً 2.5%): {amount}",
+  "@zakatDueApproxMessage": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+
+  "fillAllFieldsMessage": "براہ کرم تمام خانے پُر کریں",
+  "accountCreationFailedMessage": "اکاؤنٹ بنانے میں مسئلہ پیش آیا: {error}",
+  "@accountCreationFailedMessage": {
+    "placeholders": {"error": {"type": "String"}}
+  },
+  "newAccountAndShopTitle": "نیا اکاؤنٹ اور دکان",
+  "ownerInfoSectionLabel": "مالک کی معلومات",
+  "yourNameLabel": "آپ کا نام",
+  "phoneNumberLabel": "فون نمبر",
+  "passwordLabel": "پاس ورڈ",
+  "shopInfoSectionLabel": "دکان کی معلومات",
+  "createAccountAndShopButton": "اکاؤنٹ اور دکان بنائیں",
+
+  "premiumFeatureTitle": "پریمیم فیچر",
+  "premiumFeatureIncludedMessage": "\"{feature}\" پریمیم پلان میں شامل ہے۔ اپ گریڈ کر کے یہ فیچر فوری استعمال کریں۔",
+  "@premiumFeatureIncludedMessage": {
+    "placeholders": {"feature": {"type": "String"}}
+  },
+  "premiumBadgeLabel": "پریمیم",
+
+  "scanBarcodeQrTitle": "بار کوڈ / QR سکین کریں",
+  "pointCameraAtBarcodeMessage": "کیمرہ کو بار کوڈ یا QR کوڈ کے سامنے رکھیں",
+
+  "calculatorLabel": "کیلکولیٹر",
+  "closeLabel": "بند کریں",
+  "insertIntoResultFieldLabel": "نتیجہ فیلڈ میں شامل کریں"
+}
